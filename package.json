@@ -1,0 +1,8 @@
+{
+  "name": "ngdata-epostgenerator",
+  "version": "1.0.0",
+  "description": "Webapp for NANO- og Workday-utkast.",
+  "private": true,
+  "author": "OpenAI Codex",
+  "license": "UNLICENSED"
+}
