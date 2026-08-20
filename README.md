@@ -18,6 +18,7 @@ Appen hjelper deg med a:
 - Workday
   - Ansatt bruker
   - Kandidat-profil
+  - Jobbprofil-velger basert på NG_Job_Profiles.xlsx
 - User-S
   - NGFLYT (samme/nytt passord)
   - Ikke NGdata-sak (henvisning til leverandor)
