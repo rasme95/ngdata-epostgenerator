@@ -45,6 +45,226 @@ const workdaySpokeUrls = {
   "b2b org": "b2b-ng.okta-emea.com"
 };
 
+const jobProfileLookup = JOB_PROFILE_DATA.lookups;
+const jobProfilePhraseTranslations = [
+  ["Assistant Store Manager", "Assisterende butikksjef"],
+  ["Store Department Manager", "Avdelingsleder"],
+  ["Store Manager", "Butikksjef"],
+  ["Area Manager", "Områdeansvarlig"],
+  ["Store Employee", "Butikkmedarbeider"],
+  [" - store -", " - butikk -"],
+  ["Administration Employee", "Administrasjonsmedarbeider"],
+  ["Business Analyst", "Forretningsanalytiker"],
+  ["Data Scientist", "Dataanalytiker"],
+  ["Master Data", "Masterdata"],
+  ["Key Account Management", "Kundeansvar"],
+  ["Customer Service Representative", "Kundeservicemedarbeider"],
+  ["Sales Representative", "Salgsrepresentant"],
+  ["Managing Director", "Administrerende direktør"],
+  ["General Counsel", "Juridisk direktør"],
+  ["Paralegal", "Advokatassistent"],
+  ["Business Controller", "Business Controller"],
+  ["Payroll Employee", "Lønningsmedarbeider"],
+  ["HR Consultant", "HR-konsulent"],
+  ["HR Advisor", "HR-rådgiver"],
+  ["HR Coordinator", "HR-koordinator"],
+  ["Communication Employee", "Kommunikasjonsmedarbeider"],
+  ["Graphic Designer", "Grafisk designer"],
+  ["UX/UI Designer", "UX/UI-designer"],
+  ["Visual Merchandising", "Visuell vareeksponering"],
+  ["Operations Support", "Driftsstøtte"],
+  ["Category Management", "Kategoriansvar"],
+  ["Product Developer", "Produktutvikler"],
+  ["Product Development", "Produktutvikling"],
+  ["Project Management", "Prosjektledelse"],
+  ["Quality and Safety", "Kvalitet og sikkerhet"],
+  ["Facility Management", "Eiendomsdrift"],
+  ["Real Estate", "Eiendom"],
+  ["Strategy and Business Development", "Strategi og forretningsutvikling"],
+  ["Business Relationship Manager", "Forretningsrelasjonsansvarlig"],
+  ["System Administrator", "Systemadministrator"],
+  ["Product Owner", "Produkteier"],
+  ["Scrum Master", "Scrum master"],
+  ["Software Engineer", "Programvareutvikler"],
+  ["IT Support", "IT-brukerstøtte"],
+  ["Consultant", "Konsulent"],
+  ["Team Leader", "Teamleder"],
+  ["Department Manager", "Avdelingsleder"],
+  ["Next in Command", "Nestleder"],
+  ["Special Operator", "Spesialoperatør"],
+  ["Production Employee", "Produksjonsmedarbeider"],
+  ["Transportation Employee", "Transportmedarbeider"],
+  ["Transportation Office", "Transportkontor"],
+  ["Warehouse Employee", "Lagermedarbeider"],
+  ["Production Planner", "Produksjonsplanlegger"],
+  ["Traffic Planner", "Trafikkplanlegger"],
+  ["Tactical Planner", "Taktisk planlegger"],
+  ["Purchaser", "Innkjøper"],
+  ["Planner", "Planlegger"],
+  ["Advisor", "Rådgiver"],
+  ["Senior Advisor", "Seniorrådgiver"],
+  ["Senior Consultant", "Senior konsulent"],
+  ["Senior", "Senior"],
+  ["Director", "Direktør"],
+  ["Manager", "Leder"],
+  ["Employee", "Medarbeider"],
+  ["Operations", "Drift"],
+  ["Administration", "Administrasjon"],
+  ["Analytics", "Analyse"],
+  ["Finance", "Økonomi"],
+  ["Accounting", "Regnskap"],
+  ["Marketing", "Markedsføring"],
+  ["Merchandising", "Vareeksponering"],
+  ["Allocation", "Allokering"],
+  ["Procurement", "Innkjøp"],
+  ["Production", "Produksjon"],
+  ["Planning", "Planlegging"],
+  ["Distribution", "Distribusjon"],
+  ["Transportation", "Transport"],
+  ["Warehouse", "Lager"],
+  ["Factory", "Produksjon"],
+  ["Maintenance", "Vedlikehold"],
+  ["Service", "Service"],
+  ["Infrastructure", "Infrastruktur"],
+  ["Architect", "Arkitekt"],
+  ["Technology", "Teknologi"],
+  ["Design", "Design"],
+  ["Applications", "Applikasjoner"],
+  ["Support", "Støtte"],
+  ["under 18 years old", "under 18 år"],
+  ["Under 18s Group", "Gruppe under 18 år"],
+  ["Under 18s", "Under 18 år"],
+  ["Gas Station", "Bensinstasjon"],
+  ["with Certification", "med fagbrev"],
+  ["without Certification", "uten fagbrev"],
+  ["Apprentice", "Lærling"],
+  ["Hourly", "Timelønn"],
+  ["Salary", "Månedslønn"]
+];
+
+const jobProfileCategoryTranslations = {
+  "Non-field": "Kontor / spesialist",
+  Store: "Butikk",
+  "Store Manager": "Butikksjef",
+  Transportation: "Transport",
+  "Transportation Manager": "Transportleder",
+  Warehouse: "Lager",
+  "Warehouse Manager": "Lagerleder",
+  Factory: "Produksjon",
+  "Factory Manager": "Produksjonsleder",
+  Maintenance: "Vedlikehold",
+  "Maintenance Manager": "Vedlikeholdsleder"
+};
+
+const jobProfileManagementTranslations = {
+  "Individual Contributor": "Medarbeider",
+  "Middle Management": "Mellomleder",
+  "Top Management": "Toppleder"
+};
+
+function cleanJobProfileText(value) {
+  return String(value || "")
+    .replaceAll("\u200b", "")
+    .replaceAll("\u00a0", " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function translateJobProfileText(value) {
+  let translated = cleanJobProfileText(value);
+
+  jobProfilePhraseTranslations.forEach(([source, target]) => {
+    translated = translated.replaceAll(source, target);
+  });
+
+  return cleanJobProfileText(translated);
+}
+
+function translateJobProfileClassification(value) {
+  return cleanJobProfileText(value)
+    .replaceAll("DATA SCIENTIST", "DATAANALYTIKER")
+    .replaceAll("KEY ACCOUNT MANAGER", "KUNDEANSVARLIG");
+}
+
+function getOverarchingJobProfile(profileName) {
+  return cleanJobProfileText(profileName)
+    .replace(/\s*-\s*(?:Månedslønn|Timelønn)\s*$/i, "")
+    .replace(/\s+(?:VIII|VII|VI|IX|IV|III|II|X|V|I)(?=\s*(?:-|\/|$))/g, "")
+    .replace(/\s*-\s*(?:store|butikk)\s*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getJobProfileLevel(profileName) {
+  const match = cleanJobProfileText(profileName).match(/\b(VIII|VII|VI|IX|IV|III|II|X|V|I)\b(?=\s*(?:-|\/|$))/);
+  return match ? match[1] : "";
+}
+
+function getJobProfileLevelNumber(level) {
+  const levels = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9, X: 10 };
+  return levels[level] || 99;
+}
+
+const jobProfiles = JOB_PROFILE_DATA.rows.map((row) => {
+  const rawProfile = row[1];
+  const translatedProfile = translateJobProfileText(rawProfile);
+  const rawTitle = jobProfileLookup.title[row[2]];
+  const rawGroup = jobProfileLookup.group[row[3]];
+  const rawFamily = jobProfileLookup.family[row[4]];
+  const rawCategory = jobProfileLookup.category[row[5]];
+  const rawManagement = jobProfileLookup.management[row[6]];
+  const rawPay = jobProfileLookup.pay[row[7]];
+  const rawClassification = jobProfileLookup.classification[row[9]];
+
+  return {
+    code: row[0],
+    rawProfile,
+    rawGroup,
+    rawFamily,
+    rawCategory,
+    rawManagement,
+    rawPay,
+    rawClassification,
+    profile: translatedProfile,
+    baseProfile: getOverarchingJobProfile(translatedProfile),
+    level: getJobProfileLevel(rawProfile),
+    title: translateJobProfileText(rawTitle),
+    group: translateJobProfileText(rawGroup),
+    family: translateJobProfileText(rawFamily),
+    category: jobProfileCategoryTranslations[rawCategory] || translateJobProfileText(rawCategory),
+    management: rawManagement,
+    managementLabel: jobProfileManagementTranslations[rawManagement] || translateJobProfileText(rawManagement),
+    pay: rawPay,
+    payLabel: rawPay === "Salary" ? "Månedslønn" : "Timelønn",
+    grade: jobProfileLookup.grade[row[8]],
+    classification: translateJobProfileClassification(rawClassification),
+    workers: row[10]
+  };
+});
+
+const freshFoodLeaderAliases = jobProfiles
+  .filter((profile) => profile.rawProfile.toLowerCase().includes("store department manager"))
+  .map((profile) => ({
+    ...profile,
+    isAlias: true,
+    aliasSource: profile.profile,
+    profile: profile.profile.replaceAll("Avdelingsleder", "Ferskvareleder"),
+    baseProfile: "Ferskvareleder",
+    title: "Ferskvareleder"
+  }));
+
+jobProfiles.push(...freshFoodLeaderAliases);
+
+const jobProfileAreaOptions = [
+  { value: "store", label: "Butikk", help: "Butikkmedarbeidere og butikkledelse" },
+  { value: "administration", label: "Administrasjon", help: "Administrasjons- og støtteprofiler" },
+  { value: "warehouse", label: "Lager", help: "Lager og vareflyt" },
+  { value: "production", label: "Produksjon", help: "Fabrikk- og produksjonsprofiler" },
+  { value: "maintenance", label: "Vedlikehold", help: "Service- og vedlikeholdsprofiler" },
+  { value: "transportation", label: "Transport", help: "Transport- og distribusjonsprofiler" },
+  { value: "other", label: "Øvrige jobbprofiler", help: "Andre fag-, kontor- og spesialistprofiler" }
+];
+
 const nanoOrganizations = [
   "Kiwi Org",
   "Meny Org",
@@ -150,6 +370,10 @@ function updateBreadcrumb() {
 
   if (state.currentScenario === "workday") {
     parts.push("Workday-innlogging");
+
+    if (state.formData.workdayType === "job-profile") {
+      parts.push("Jobbprofil-velger");
+    }
   }
 
   if (state.currentScenario === "user-s") {
@@ -400,6 +624,11 @@ function renderWorkdayScenario() {
 
   if (workdayType === "candidate") {
     renderWorkdayCandidateOptions();
+    return;
+  }
+
+  if (workdayType === "job-profile") {
+    renderJobProfileCalculator();
   }
 }
 
@@ -623,7 +852,9 @@ function renderWorkdayEmployeeStatusPicker() {
 function renderWorkdayTypePicker() {
   appElement.innerHTML = `
     <section class="panel">
-      <h1>Workday-innlogging</h1>
+      <h1>Workday</h1>
+
+      <p class="lead">Velg om du skal håndtere innlogging, kandidatprofil eller finne riktig jobbprofil.</p>
 
       <div class="home-grid">
         <button class="card-button" type="button" data-workday-type="employee">
@@ -633,11 +864,21 @@ function renderWorkdayTypePicker() {
         <button class="card-button" type="button" data-workday-type="candidate">
           <strong>Kandidat-profil</strong>
         </button>
+
+        <button class="card-button card-button--info" type="button" data-workday-type="job-profile">
+          <strong>Jobbprofil-velger</strong>
+          <span>Finn korrekt jobbprofil steg for steg</span>
+        </button>
+      </div>
+
+      <div class="actions">
+        <button id="back-to-home-from-workday" class="secondary-button" type="button">Tilbake</button>
       </div>
     </section>
   `;
 
   const typeButtons = appElement.querySelectorAll("[data-workday-type]");
+  const backButton = document.getElementById("back-to-home-from-workday");
 
   typeButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -647,7 +888,411 @@ function renderWorkdayTypePicker() {
       renderApp();
     });
   });
+
+  backButton.addEventListener("click", goHome);
 }
+
+function renderJobProfileCalculator() {
+  const filters = state.formData.jobProfileFilters || {};
+  const selectedRole = filters.role === "manager" ? "manager" : "employee";
+  const selectedArea = filters.area || "store";
+  const selectedAge = filters.age || "not-relevant";
+  const selectedCertification = filters.certification === "not-relevant" ? "unmarked" : filters.certification || "unmarked";
+  const selectedPay = filters.pay || "not-relevant";
+
+  appElement.innerHTML = `
+    <section class="panel calculator-panel">
+      <div class="calculator-header">
+        <div>
+          <p class="eyebrow">Workday-verktøy</p>
+          <h1>Jobbprofil-velger</h1>
+          <p class="lead">Svar på spørsmålene for å snevre inn til jobbprofilene som passer behovet.</p>
+        </div>
+      </div>
+
+      <form id="job-profile-calculator-form" class="calculator-form">
+        <div class="calculator-grid">
+          <div class="field-group">
+            <label for="job-profile-area">Arbeidsområde</label>
+            <select id="job-profile-area" name="area">
+              ${jobProfileAreaOptions
+                .map(
+                  (option) =>
+                    `<option value="${option.value}" ${isSelected(selectedArea, option.value)}>${escapeHtml(option.label)}</option>`
+                )
+                .join("")}
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="job-profile-role">Rolle</label>
+            <select id="job-profile-role" name="role">
+              <option value="employee" ${isSelected(selectedRole, "employee")}>Medarbeider</option>
+              <option value="manager" ${isSelected(selectedRole, "manager")}>Leder</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="job-profile-certification">Fagbrev</label>
+            <select id="job-profile-certification" name="certification">
+              <option value="unmarked" ${isSelected(selectedCertification, "unmarked")}>Umerket</option>
+              <option value="apprentice" ${isSelected(selectedCertification, "apprentice")}>Lærling</option>
+              <option value="with" ${isSelected(selectedCertification, "with")}>Med fagbrev</option>
+              <option value="without" ${isSelected(selectedCertification, "without")}>Uten fagbrev</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="job-profile-pay">Lønnstype</label>
+              <select id="job-profile-pay" name="pay">
+              <option value="not-relevant" ${isSelected(selectedPay, "not-relevant")}>Urelevant</option>
+              <option value="Salary" ${isSelected(selectedPay, "Salary")}>Månedslønn</option>
+              <option value="Hourly" ${isSelected(selectedPay, "Hourly")}>Timelønn</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="job-profile-age">Alder</label>
+            <select id="job-profile-age" name="age">
+              <option value="not-relevant" ${isSelected(selectedAge, "not-relevant")}>Ikke relevant</option>
+              <option value="over-18" ${isSelected(selectedAge, "over-18")}>Over 18 år</option>
+              <option value="under-18" ${isSelected(selectedAge, "under-18")}>Under 18 år</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary-button" type="submit">Finn jobbprofil</button>
+          <button id="back-to-workday-types-from-calculator" class="secondary-button" type="button">Tilbake</button>
+        </div>
+      </form>
+
+      ${filters.submitted ? renderJobProfileResults(filters) : renderJobProfileIntro()}
+    </section>
+  `;
+
+  document.getElementById("job-profile-calculator-form").addEventListener("submit", handleJobProfileCalculatorSubmit);
+  document.getElementById("job-profile-area").addEventListener("change", handleJobProfileFilterChange);
+  document.getElementById("job-profile-role").addEventListener("change", handleJobProfileFilterChange);
+  document.getElementById("back-to-workday-types-from-calculator").addEventListener("click", () => {
+    state.formData = {};
+    renderApp();
+  });
+
+  bindJobProfileCopyButtons(appElement);
+  appElement.querySelectorAll("[data-job-profile-version-select]").forEach((select) => {
+    select.addEventListener("change", () => handleJobProfileVersionChange(select));
+  });
+  bindJobProfileSuggestionToggles(appElement);
+}
+
+function bindJobProfileCopyButtons(container) {
+  container.querySelectorAll("[data-copy-job-profile]").forEach((button) => {
+    button.addEventListener("click", () => copyJobProfileToClipboard(button));
+  });
+}
+
+function bindJobProfileSuggestionToggles(container) {
+  container.querySelectorAll("[data-job-profile-suggestion]").forEach((suggestion) => {
+    const infoButton = suggestion.querySelector("[data-job-profile-info-toggle]");
+
+    if (!infoButton) {
+      return;
+    }
+
+    infoButton.addEventListener("click", () => {
+      setJobProfileSuggestionExpanded(suggestion, !suggestion.classList.contains("is-expanded"));
+    });
+  });
+}
+
+function setJobProfileSuggestionExpanded(suggestion, expanded) {
+  if (expanded) {
+    suggestion.parentElement?.querySelectorAll("[data-job-profile-suggestion].is-expanded").forEach((otherSuggestion) => {
+      if (otherSuggestion !== suggestion) {
+        otherSuggestion.classList.remove("is-expanded");
+        const otherInfoButton = otherSuggestion.querySelector("[data-job-profile-info-toggle]");
+        otherInfoButton?.setAttribute("aria-expanded", "false");
+        if (otherInfoButton) {
+          otherInfoButton.textContent = "Mer info";
+        }
+      }
+    });
+  }
+
+  suggestion.classList.toggle("is-expanded", expanded);
+  const infoButton = suggestion.querySelector("[data-job-profile-info-toggle]");
+  infoButton?.setAttribute("aria-expanded", String(expanded));
+  if (infoButton) {
+    infoButton.textContent = expanded ? "Mindre info" : "Mer info";
+  }
+}
+
+function handleJobProfileFilterChange() {
+  const filters = state.formData.jobProfileFilters || {};
+  const areaElement = document.getElementById("job-profile-area");
+  const roleElement = document.getElementById("job-profile-role");
+  const role = roleElement.value;
+  const area = areaElement.value === "all" ? "store" : areaElement.value;
+  const age = document.getElementById("job-profile-age").value;
+
+  state.formData.jobProfileFilters = {
+    area,
+    role,
+    age,
+    certification: filters.certification === "not-relevant" ? "unmarked" : filters.certification || "unmarked",
+    pay: document.getElementById("job-profile-pay").value,
+    submitted: false
+  };
+  renderApp();
+}
+
+function renderJobProfileIntro() {
+  return `
+    <p class="calculator-prompt">Velg kriterier og trykk «Finn jobbprofil».</p>
+  `;
+}
+
+function handleJobProfileCalculatorSubmit(event) {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const role = formData.get("role");
+  const area = formData.get("area") || "store";
+  const age = formData.get("age");
+  const certification = formData.get("certification") || "unmarked";
+
+  state.formData.jobProfileFilters = {
+    area,
+    role,
+    age,
+    certification,
+    pay: formData.get("pay"),
+    submitted: true
+  };
+  renderApp();
+}
+
+function renderJobProfileResults(filters) {
+  const matches = findJobProfileMatches(filters);
+  const suggestions = groupJobProfileMatches(matches, filters);
+
+  if (!suggestions.length) {
+    return `
+      <section class="calculator-results">
+        <div class="results-header">
+          <div>
+            <p class="eyebrow">Resultat</p>
+            <h2>Ingen direkte treff</h2>
+          </div>
+        </div>
+        <p class="calculator-empty">Kombinasjonen finnes ikke i grunnlaget. Prøv «Umerket» under fagbrev eller bytt arbeidsområde.</p>
+      </section>
+    `;
+  }
+
+  const areaLabel = jobProfileAreaOptions.find((option) => option.value === filters.area)?.label || (filters.area === "all" ? "Alle områder" : filters.area);
+  const roleLabel = filters.certification === "apprentice" ? "Lærling" : filters.role === "manager" ? "Leder" : "Medarbeider";
+  const payLabel = filters.pay === "Hourly" ? "Timelønn" : filters.pay === "Salary" ? "Månedslønn" : "Urelevant";
+  const ageLabel = filters.age === "under-18" ? "Under 18 år" : filters.age === "over-18" ? "Over 18 år" : "Ikke relevant";
+
+  return `
+    <section class="calculator-results" aria-live="polite">
+      <div class="results-header">
+        <div>
+          <p class="eyebrow">Resultat</p>
+          <h2>${suggestions.length} ${suggestions.length === 1 ? "forslag" : "forslag"} funnet</h2>
+        </div>
+        <span class="result-count">${escapeHtml(areaLabel)} · ${roleLabel} · ${payLabel} · ${ageLabel}</span>
+      </div>
+      <div class="job-profile-suggestions">
+        ${suggestions.map((suggestion, index) => renderJobProfileSuggestion(suggestion, index)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function groupJobProfileMatches(matches, filters = {}) {
+  const groups = new Map();
+  const splitByPay = filters.pay === "not-relevant";
+
+  matches.forEach((profile) => {
+    const groupKey = splitByPay ? `${profile.baseProfile}::${profile.pay}` : profile.baseProfile;
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, {
+        name: profile.baseProfile,
+        variants: []
+      });
+    }
+
+    groups.get(groupKey).variants.push(profile);
+  });
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      variants: group.variants.sort(
+        (first, second) =>
+          getJobProfileLevelNumber(first.level) - getJobProfileLevelNumber(second.level) ||
+          first.payLabel.localeCompare(second.payLabel)
+      )
+    }))
+    .sort((first, second) => {
+      const workerDifference = second.variants[0].workers - first.variants[0].workers;
+      const nameDifference = first.name.localeCompare(second.name);
+      const payOrder = { Salary: 1, Hourly: 2 };
+      const payDifference = (payOrder[first.variants[0].pay] || 99) - (payOrder[second.variants[0].pay] || 99);
+
+      return workerDifference || nameDifference || payDifference;
+    });
+}
+
+function renderJobProfileSuggestion(group, index) {
+  const firstProfile = group.variants[0];
+  const selectId = `job-profile-version-${index}`;
+  const detailsId = `job-profile-details-${index}`;
+  const versionPicker = group.variants.length > 1
+    ? `<select id="${selectId}" class="job-profile-version-select" data-job-profile-version-select aria-label="Velg jobbprofilversjon for ${escapeAttribute(group.name)}">
+        ${group.variants
+          .map(
+            (profile) =>
+              `<option value="${escapeAttribute(profile.code)}" data-profile-name="${escapeAttribute(profile.profile)}" ${isSelected(profile.code, firstProfile.code) && profile.profile === firstProfile.profile ? "selected" : ""}>${escapeHtml(profile.profile)}</option>`
+          )
+          .join("")}
+      </select>`
+    : `<h3 class="job-profile-version-title">${escapeHtml(firstProfile.profile)}</h3>`;
+
+  return `
+    <article class="job-profile-suggestion" data-job-profile-suggestion>
+      <div class="job-profile-suggestion__header">
+        ${versionPicker}
+        <button type="button" class="job-profile-info-button" data-job-profile-info-toggle aria-expanded="false" aria-controls="${detailsId}">Mer info</button>
+      </div>
+      <div id="${detailsId}" class="job-profile-result" data-job-profile-details>
+        ${renderJobProfileResultContent(firstProfile)}
+      </div>
+    </article>
+  `;
+}
+
+function renderJobProfileResultContent(profile) {
+  const versionLabel = profile.level ? `Versjon ${getJobProfileLevelNumber(profile.level)}` : "";
+  const profileMeta = [versionLabel, profile.payLabel, `Jobbkode ${profile.code}`].filter(Boolean).join(" · ");
+
+  return `
+    <div class="job-profile-result__header">
+      <div>
+        <p class="job-profile-result__eyebrow">${escapeHtml(profileMeta)}</p>
+      </div>
+      <button class="copy-small-button" type="button" data-copy-job-profile="${escapeAttribute(profile.code)}" data-copy-job-profile-name="${escapeAttribute(profile.profile)}">Kopier</button>
+    </div>
+    <div class="job-profile-result__meta">
+      <span><strong>Jobbtittel:</strong> ${escapeHtml(profile.title)}</span>
+      <span><strong>Lønnsgruppe:</strong> ${escapeHtml(profile.grade || "–")}</span>
+      <span><strong>Rolle:</strong> ${escapeHtml(profile.managementLabel)}</span>
+    </div>
+    <p class="job-profile-result__classification">${escapeHtml(profile.classification)}</p>
+  `;
+}
+
+function handleJobProfileVersionChange(select) {
+  const selectedOption = select.options[select.selectedIndex];
+  const profileName = selectedOption?.dataset.profileName;
+  const profile =
+    jobProfiles.find((item) => item.code === select.value && item.profile === profileName) ||
+    jobProfiles.find((item) => item.code === select.value);
+  const suggestion = select.closest("[data-job-profile-suggestion]");
+  const details = suggestion?.querySelector("[data-job-profile-details]");
+
+  if (!profile || !details) {
+    return;
+  }
+
+  details.innerHTML = renderJobProfileResultContent(profile);
+  bindJobProfileCopyButtons(details);
+}
+
+function findJobProfileMatches(filters) {
+  const apprenticeSelected = filters.certification === "apprentice";
+  const unmarkedSelected = filters.certification === "unmarked" || filters.certification === "not-relevant";
+  const certificationRelevant = filters.area === "store" && filters.role === "employee" && !apprenticeSelected;
+
+  const matches = jobProfiles.filter((profile) => {
+    const jobProfileText = `${profile.rawProfile} ${profile.profile}`.toLowerCase();
+    const isApprentice = jobProfileText.includes("apprentice") || jobProfileText.includes("lærling");
+
+    if (apprenticeSelected) {
+      if (!isApprentice) {
+        return false;
+      }
+    } else {
+      if (unmarkedSelected && (isApprentice || jobProfileText.includes("with certification") || jobProfileText.includes("without certification"))) {
+        return false;
+      }
+
+      if (filters.role === "manager" && profile.rawManagement === "Individual Contributor") {
+        return false;
+      }
+
+      if (filters.role === "employee" && profile.rawManagement !== "Individual Contributor") {
+        return false;
+      }
+    }
+
+    if (!matchesJobProfileArea(profile, filters.area)) {
+      return false;
+    }
+
+    if (filters.pay !== "not-relevant" && profile.pay !== filters.pay) {
+      return false;
+    }
+
+    if (filters.age === "under-18" && !profile.rawProfile.toLowerCase().includes("under 18")) {
+      return false;
+    }
+
+    if (filters.age === "over-18" && profile.rawProfile.toLowerCase().includes("under 18")) {
+      return false;
+    }
+
+    if (certificationRelevant && filters.certification === "with" && !profile.rawProfile.toLowerCase().includes("with certification")) {
+      return false;
+    }
+
+    if (certificationRelevant && filters.certification === "without" && !profile.rawProfile.toLowerCase().includes("without certification")) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return matches.sort((first, second) => second.workers - first.workers || first.profile.localeCompare(second.profile));
+}
+
+function matchesJobProfileArea(profile, area) {
+  if (area === "all") {
+    return true;
+  }
+
+  if (area === "administration") {
+    return profile.rawGroup === "Administration";
+  }
+
+  const categoriesByArea = {
+    store: ["Store", "Store Manager"],
+    warehouse: ["Warehouse", "Warehouse Manager"],
+    production: ["Factory", "Factory Manager"],
+    maintenance: ["Maintenance", "Maintenance Manager"],
+    transportation: ["Transportation", "Transportation Manager"]
+  };
+
+  if (categoriesByArea[area]) {
+    return categoriesByArea[area].includes(profile.rawCategory);
+  }
+
+  return profile.rawCategory === "Non-field" && profile.rawGroup !== "Administration";
+}
+
 
 function renderWorkdayCandidateOptions() {
   const selectedOption = state.formData.candidateType;
@@ -1128,6 +1773,26 @@ async function copyDraftToClipboard() {
   } catch (error) {
     copyStatus.textContent = "Kopiering feilet. Marker teksten og kopier manuelt.";
     copyStatus.classList.remove("hidden");
+  }
+}
+
+async function copyJobProfileToClipboard(button) {
+  const profile = jobProfiles.find((item) => item.code === button.dataset.copyJobProfile);
+
+  if (!profile) {
+    return;
+  }
+
+  try {
+    const profileName = button.dataset.copyJobProfileName || profile.profile;
+    await navigator.clipboard.writeText(`${profile.code} - ${profileName}`);
+    const originalLabel = button.textContent;
+    button.textContent = "Kopiert";
+    window.setTimeout(() => {
+      button.textContent = originalLabel;
+    }, 1600);
+  } catch (error) {
+    button.textContent = "Kopiering feilet";
   }
 }
 
