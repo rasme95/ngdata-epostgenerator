@@ -3,6 +3,7 @@ const breadcrumbElement = document.getElementById("breadcrumb");
 const homeButton = document.getElementById("home-button");
 const settingsButton = document.getElementById("settings-button");
 const signatureButton = document.getElementById("signature-button");
+const sectionBrandElement = document.getElementById("section-brand");
 
 const standardClosingLines = [
   "Hvis du fortsatt her mer behov for bistand, vennligst kontakt Brukerstøtte på telefon 95 12 99 99.",
@@ -316,6 +317,7 @@ applySettings();
 renderApp();
 
 function renderApp() {
+  renderSectionBrand();
   updateBreadcrumb();
   renderSettingsPanel();
 
@@ -332,6 +334,45 @@ function renderApp() {
   if (state.currentView === "draft") {
     renderDraft();
   }
+}
+
+function renderSectionBrand() {
+  if (!sectionBrandElement) {
+    return;
+  }
+
+  const brands = {
+    nano: {
+      className: "section-brand--nano",
+      ariaLabel: "NANO",
+      image: "nano-logo.png"
+    },
+    workday: {
+      className: "section-brand--workday",
+      ariaLabel: "Workday",
+      image: "workday-logo.png"
+    }
+  };
+  const brand = state.currentView === "home"
+    ? {
+        className: "section-brand--norgesgruppen",
+        ariaLabel: "NorgesGruppen",
+        image: "norgesgruppen-logo.png"
+      }
+    : brands[state.currentScenario];
+
+  if (!brand) {
+    sectionBrandElement.className = "section-brand hidden";
+    sectionBrandElement.removeAttribute("aria-label");
+    sectionBrandElement.textContent = "";
+    return;
+  }
+
+  sectionBrandElement.className = `section-brand ${brand.className}`;
+  sectionBrandElement.setAttribute("aria-label", brand.ariaLabel);
+  sectionBrandElement.innerHTML = brand.image
+    ? `<img class="section-brand__image" src="${brand.image}" alt="${brand.ariaLabel}" />`
+    : `<span class="section-brand__mark" aria-hidden="true"></span><span>${brand.label}</span>`;
 }
 
 function goHome() {

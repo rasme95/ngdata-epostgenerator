@@ -118,6 +118,54 @@ textarea {
   margin-bottom: 24px;
 }
 
+.section-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--panel-color);
+  color: var(--text-color);
+  font-size: 1.03rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.section-brand--workday,
+.section-brand--nano {
+  padding: 4px 8px;
+  border-color: transparent;
+  background: #ffffff;
+}
+
+.section-brand--workday .section-brand__image {
+  height: 34px;
+}
+
+.section-brand--nano .section-brand__image {
+  height: 26px;
+}
+
+.section-brand--norgesgruppen {
+  padding: 4px 8px;
+  border-color: transparent;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.section-brand__image {
+  display: block;
+  width: auto;
+  object-fit: contain;
+}
+
+.section-brand--norgesgruppen .section-brand__image {
+  border-radius: 12px;
+}
+
 .ghost-button,
 .primary-button,
 .secondary-button,
