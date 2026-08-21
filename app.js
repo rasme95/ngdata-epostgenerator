@@ -922,10 +922,12 @@ function renderWorkdayTypePicker() {
 
 function renderJobProfileCalculator() {
   const filters = state.formData.jobProfileFilters || {};
-  const selectedRole = filters.role === "manager" ? "manager" : "employee";
+  const selectedRole = ["manager", "apprentice"].includes(filters.role) ? filters.role : "employee";
   const selectedArea = filters.area || "store";
   const selectedAge = filters.age || "not-relevant";
-  const selectedCertification = filters.certification === "not-relevant" ? "unmarked" : filters.certification || "unmarked";
+  const selectedCertification = ["not-relevant", "apprentice"].includes(filters.certification)
+    ? "unmarked"
+    : filters.certification || "unmarked";
   const selectedPay = filters.pay || "not-relevant";
 
   appElement.innerHTML = `
@@ -957,14 +959,14 @@ function renderJobProfileCalculator() {
             <select id="job-profile-role" name="role">
               <option value="employee" ${isSelected(selectedRole, "employee")}>Medarbeider</option>
               <option value="manager" ${isSelected(selectedRole, "manager")}>Leder</option>
+              <option value="apprentice" ${isSelected(selectedRole, "apprentice")}>Lærling</option>
             </select>
           </div>
 
-          <div class="field-group">
+          <div class="field-group ${selectedRole === "apprentice" ? "hidden" : ""}">
             <label for="job-profile-certification">Fagbrev</label>
             <select id="job-profile-certification" name="certification">
               <option value="unmarked" ${isSelected(selectedCertification, "unmarked")}>Umerket</option>
-              <option value="apprentice" ${isSelected(selectedCertification, "apprentice")}>Lærling</option>
               <option value="with" ${isSelected(selectedCertification, "with")}>Med fagbrev</option>
               <option value="without" ${isSelected(selectedCertification, "without")}>Uten fagbrev</option>
             </select>
@@ -979,7 +981,7 @@ function renderJobProfileCalculator() {
             </select>
           </div>
 
-          <div class="field-group">
+          <div class="field-group ${["manager", "apprentice"].includes(selectedRole) ? "hidden" : ""}">
             <label for="job-profile-age">Alder</label>
             <select id="job-profile-age" name="age">
               <option value="not-relevant" ${isSelected(selectedAge, "not-relevant")}>Ikke relevant</option>
@@ -1068,7 +1070,9 @@ function handleJobProfileFilterChange() {
     area,
     role,
     age,
-    certification: filters.certification === "not-relevant" ? "unmarked" : filters.certification || "unmarked",
+    certification: ["not-relevant", "apprentice"].includes(filters.certification)
+      ? "unmarked"
+      : filters.certification || "unmarked",
     pay: document.getElementById("job-profile-pay").value,
     submitted: false
   };
@@ -1092,8 +1096,8 @@ function handleJobProfileCalculatorSubmit(event) {
   state.formData.jobProfileFilters = {
     area,
     role,
-    age,
-    certification,
+    age: ["manager", "apprentice"].includes(role) ? "not-relevant" : age,
+    certification: role === "apprentice" ? "unmarked" : certification,
     pay: formData.get("pay"),
     submitted: true
   };
@@ -1113,13 +1117,13 @@ function renderJobProfileResults(filters) {
             <h2>Ingen direkte treff</h2>
           </div>
         </div>
-        <p class="calculator-empty">Kombinasjonen finnes ikke i grunnlaget. Prøv «Umerket» under fagbrev eller bytt arbeidsområde.</p>
+        <p class="calculator-empty">Kombinasjonen finnes ikke i grunnlaget. Prøv andre kriterier eller bytt arbeidsområde.</p>
       </section>
     `;
   }
 
   const areaLabel = jobProfileAreaOptions.find((option) => option.value === filters.area)?.label || (filters.area === "all" ? "Alle områder" : filters.area);
-  const roleLabel = filters.certification === "apprentice" ? "Lærling" : filters.role === "manager" ? "Leder" : "Medarbeider";
+  const roleLabel = filters.role === "apprentice" ? "Lærling" : filters.role === "manager" ? "Leder" : "Medarbeider";
   const payLabel = filters.pay === "Hourly" ? "Timelønn" : filters.pay === "Salary" ? "Månedslønn" : "Urelevant";
   const ageLabel = filters.age === "under-18" ? "Under 18 år" : filters.age === "over-18" ? "Over 18 år" : "Ikke relevant";
 
@@ -1245,9 +1249,10 @@ function includesJobProfilePhrase(text, phrases) {
 }
 
 function findJobProfileMatches(filters) {
-  const apprenticeSelected = filters.certification === "apprentice";
+  const apprenticeSelected = filters.role === "apprentice";
   const unmarkedSelected = filters.certification === "unmarked" || filters.certification === "not-relevant";
-  const certificationRelevant = filters.area === "store" && filters.role === "employee" && !apprenticeSelected;
+  const certificationRelevant = filters.area === "store" && filters.role === "employee";
+  const ageRelevant = !["manager", "apprentice"].includes(filters.role);
 
   const matches = jobProfiles.filter((profile) => {
     const jobProfileText = `${profile.rawProfile} ${profile.profile}`.toLowerCase();
@@ -1282,11 +1287,11 @@ function findJobProfileMatches(filters) {
       return false;
     }
 
-    if (filters.age === "under-18" && !isUnder18) {
+    if (ageRelevant && filters.age === "under-18" && !isUnder18) {
       return false;
     }
 
-    if (filters.age === "over-18" && isUnder18) {
+    if (ageRelevant && filters.age === "over-18" && isUnder18) {
       return false;
     }
 
