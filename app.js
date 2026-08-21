@@ -189,15 +189,15 @@ function translateJobProfileClassification(value) {
 
 function getOverarchingJobProfile(profileName) {
   return cleanJobProfileText(profileName)
-    .replace(/\s*-\s*(?:Månedslønn|Timelønn)\s*$/i, "")
-    .replace(/\s+(?:VIII|VII|VI|IX|IV|III|II|X|V|I)(?=\s*(?:-|\/|$))/g, "")
-    .replace(/\s*-\s*(?:store|butikk)\s*$/i, "")
+    .replace(/\s*[-–—]\s*(?:Månedslønn|Timelønn)\s*$/i, "")
+    .replace(/\s+(?:VIII|VII|VI|IX|IV|III|II|X|V|I)(?=\s*(?:[-–—]|\/|$))/g, "")
+    .replace(/\s*[-–—]\s*(?:store|butikk)\s*$/i, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 function getJobProfileLevel(profileName) {
-  const match = cleanJobProfileText(profileName).match(/\b(VIII|VII|VI|IX|IV|III|II|X|V|I)\b(?=\s*(?:-|\/|$))/);
+  const match = cleanJobProfileText(profileName).match(/\b(VIII|VII|VI|IX|IV|III|II|X|V|I)\b(?=\s*(?:[-–—]|\/|$))/);
   return match ? match[1] : "";
 }
 
@@ -236,25 +236,12 @@ const jobProfiles = JOB_PROFILE_DATA.rows.map((row) => {
     management: rawManagement,
     managementLabel: jobProfileManagementTranslations[rawManagement] || translateJobProfileText(rawManagement),
     pay: rawPay,
-    payLabel: rawPay === "Salary" ? "Månedslønn" : "Timelønn",
+    payLabel: rawPay === "Salary" ? "Månedslønn" : rawPay === "Hourly" ? "Timelønn" : "Ikke angitt",
     grade: jobProfileLookup.grade[row[8]],
     classification: translateJobProfileClassification(rawClassification),
     workers: row[10]
   };
 });
-
-const freshFoodLeaderAliases = jobProfiles
-  .filter((profile) => profile.rawProfile.toLowerCase().includes("store department manager"))
-  .map((profile) => ({
-    ...profile,
-    isAlias: true,
-    aliasSource: profile.profile,
-    profile: profile.profile.replaceAll("Avdelingsleder", "Ferskvareleder"),
-    baseProfile: "Ferskvareleder",
-    title: "Ferskvareleder"
-  }));
-
-jobProfiles.push(...freshFoodLeaderAliases);
 
 const jobProfileAreaOptions = [
   { value: "store", label: "Butikk", help: "Butikkmedarbeidere og butikkledelse" },
@@ -1253,6 +1240,10 @@ function handleJobProfileVersionChange(select) {
   bindJobProfileCopyButtons(details);
 }
 
+function includesJobProfilePhrase(text, phrases) {
+  return phrases.some((phrase) => text.includes(phrase));
+}
+
 function findJobProfileMatches(filters) {
   const apprenticeSelected = filters.certification === "apprentice";
   const unmarkedSelected = filters.certification === "unmarked" || filters.certification === "not-relevant";
@@ -1260,14 +1251,17 @@ function findJobProfileMatches(filters) {
 
   const matches = jobProfiles.filter((profile) => {
     const jobProfileText = `${profile.rawProfile} ${profile.profile}`.toLowerCase();
-    const isApprentice = jobProfileText.includes("apprentice") || jobProfileText.includes("lærling");
+    const isApprentice = includesJobProfilePhrase(jobProfileText, ["apprentice", "lærling"]);
+    const hasCertification = includesJobProfilePhrase(jobProfileText, ["with certification", "med fagbrev"]);
+    const lacksCertification = includesJobProfilePhrase(jobProfileText, ["without certification", "uten fagbrev"]);
+    const isUnder18 = jobProfileText.includes("under 18");
 
     if (apprenticeSelected) {
       if (!isApprentice) {
         return false;
       }
     } else {
-      if (unmarkedSelected && (isApprentice || jobProfileText.includes("with certification") || jobProfileText.includes("without certification"))) {
+      if (unmarkedSelected && (isApprentice || hasCertification || lacksCertification)) {
         return false;
       }
 
@@ -1288,19 +1282,19 @@ function findJobProfileMatches(filters) {
       return false;
     }
 
-    if (filters.age === "under-18" && !profile.rawProfile.toLowerCase().includes("under 18")) {
+    if (filters.age === "under-18" && !isUnder18) {
       return false;
     }
 
-    if (filters.age === "over-18" && profile.rawProfile.toLowerCase().includes("under 18")) {
+    if (filters.age === "over-18" && isUnder18) {
       return false;
     }
 
-    if (certificationRelevant && filters.certification === "with" && !profile.rawProfile.toLowerCase().includes("with certification")) {
+    if (certificationRelevant && filters.certification === "with" && !hasCertification) {
       return false;
     }
 
-    if (certificationRelevant && filters.certification === "without" && !profile.rawProfile.toLowerCase().includes("without certification")) {
+    if (certificationRelevant && filters.certification === "without" && !lacksCertification) {
       return false;
     }
 
